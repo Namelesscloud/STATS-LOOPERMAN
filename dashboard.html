@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<title>Looperman Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#050816;
+  --glass:rgba(255,255,255,0.07);
+  --glass-strong:rgba(255,255,255,0.13);
+  --border:rgba(255,255,255,0.14);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.55);
+  --accent:#8b5cf6;
+  --accent2:#22d3ee;
+  --success:#22c55e;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(139,92,246,.35),transparent 35%),
+    radial-gradient(circle at 85% 15%,rgba(34,211,238,.22),transparent 30%),
+    radial-gradient(circle at 50% 90%,rgba(236,72,153,.18),transparent 35%),
+    var(--bg);
+  overflow-x:hidden;
+}
+canvas#particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.noise{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.app{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 28px 24px;display:flex;flex-direction:column;gap:22px;min-height:100vh}
+.glass{background:var(--glass);border:1px solid var(--border);border-radius:22px;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 26px 80px rgba(0,0,0,.28)}
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:6px}
+h1{font-size:clamp(26px,4vw,44px);font-weight:900;letter-spacing:-.04em;line-height:1.1}
+.gradient-text{background:linear-gradient(135deg,#fff,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.top-panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill,.btn{border:1px solid var(--border);background:rgba(255,255,255,.08);color:white;backdrop-filter:blur(18px);border-radius:999px;padding:9px 16px;font-size:13px;white-space:nowrap}
+.btn{cursor:pointer;transition:.25s ease;font-family:inherit}
+.btn:hover{transform:translateY(-2px);background:var(--glass-strong);box-shadow:0 0 28px rgba(34,211,238,.2)}
+.btn.active{background:rgba(139,92,246,.3);border-color:var(--accent)}
+/* TABS */
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit;transition:.2s ease}
+.tab.active{background:rgba(139,92,246,.25);border-color:var(--accent);color:white}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{padding:22px;border-radius:22px;cursor:default;transition:transform .15s ease,box-shadow .15s ease;position:relative;overflow:hidden}
+.stat-label{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.icon{font-size:22px}
+.stat-value{font-size:clamp(32px,4vw,58px);font-weight:900;letter-spacing:-.06em;line-height:1}
+.delta{margin-top:6px;min-height:20px;color:var(--success);font-size:12px;font-weight:700;opacity:0;transform:translateY(6px);transition:.35s ease}
+.delta.show{opacity:1;transform:translateY(0)}
+.card-trend{margin-top:10px;font-size:11px;color:var(--muted)}
+.card-trend.up{color:var(--success)}
+.card-trend.down{color:var(--danger)}
+.pulse{animation:pulseGlow 1.1s ease}
+@keyframes pulseGlow{
+  0%  {box-shadow:0 0 0 rgba(34,211,238,0)}
+  35% {box-shadow:0 0 55px rgba(34,211,238,.5),inset 0 0 35px rgba(34,211,238,.1);transform:scale(1.015)}
+  100%{box-shadow:0 26px 80px rgba(0,0,0,.32);transform:scale(1)}
+}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
+.left-col,.right-col{display:flex;flex-direction:column;gap:18px}
+.panel{padding:22px}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.panel-header h2{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.panel-controls{display:flex;gap:6px}
+.chart-wrap{height:220px;position:relative}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em;padding:0 12px 10px;font-weight:600}
+td{padding:10px 12px;border-top:1px solid rgba(255,255,255,.07)}
+tr:hover td{background:rgba(255,255,255,.04)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-up{background:rgba(34,197,94,.2);color:var(--success)}
+.badge-down{background:rgba(239,68,68,.2);color:var(--danger)}
+.badge-neutral{background:rgba(255,255,255,.1);color:var(--muted)}
+/* LOG */
+.log{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;padding-right:4px}
+.log::-webkit-scrollbar{width:4px}
+.log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+.log-item{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);border-radius:12px;padding:9px 12px;color:var(--muted);font-size:12px;animation:fadeSlide .3s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.log-item strong{color:white}
+/* MILESTONES */
+.milestones{display:flex;flex-direction:column;gap:10px}
+.milestone{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+.milestone-icon{font-size:20px}
+.milestone-info{flex:1}
+.milestone-title{font-size:13px;font-weight:600}
+.milestone-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.milestone-progress-wrap{flex:1;max-width:120px}
+.milestone-progress-bar{height:5px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.milestone-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s ease}
+.milestone-pct{font-size:10px;color:var(--muted);margin-top:3px;text-align:right}
+/* MINI STATS */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mini-stat{padding:14px;border-radius:16px;text-align:center}
+.mini-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.mini-stat-value{font-size:22px;font-weight:900;letter-spacing:-.04em}
+/* EXPORT */
+.export-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.export-card{padding:16px;border-radius:16px;text-align:center;cursor:pointer;transition:.2s ease}
+.export-card:hover{transform:translateY(-3px);background:var(--glass-strong)}
+.export-card .export-icon{font-size:28px;margin-bottom:8px}
+.export-card .export-label{font-size:13px;font-weight:600}
+.export-card .export-sub{font-size:11px;color:var(--muted);margin-top:3px}
+/* FOOTER */
+footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:12px;padding-top:4px}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 14px var(--success);margin-right:7px;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+/* TOAST */
+#toast{position:fixed;bottom:32px;right:32px;background:rgba(20,20,40,.95);border:1px solid rgba(139,92,246,.5);border-radius:16px;padding:14px 20px;font-size:13px;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;transition:.35s ease;z-index:999;max-width:300px}
+#toast.show{transform:translateY(0);opacity:1}
+/* THEME TOGGLE */
+body.light-mode{
+  --bg:#f0f4ff;--glass:rgba(255,255,255,.7);--glass-strong:rgba(255,255,255,.9);
+  --border:rgba(0,0,0,.1);--text:#1a1a2e;--muted:rgba(0,0,0,.5);
+}
+body.light-mode .gradient-text{background:linear-gradient(135deg,#1a1a2e,#7c3aed,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+/* TAB PANELS */
+.tab-content{display:none}
+.tab-content.active{display:flex;flex-direction:column;gap:22px}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media(max-width:640px){.app{padding:16px;gap:16px}.cards{grid-template-columns:repeat(2,1fr);gap:12px}.mini-stats{grid-template-columns:repeat(2,1fr)}.export-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="noise"></div>
+<div id="toast"></div>
+
+<main class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="eyebrow">Looperman Live Stats</div>
+    <h1><span class="gradient-text">Real-Time</span> Creator Dashboard</h1>
+  </div>
+  <div class="top-panel">
+    <div class="pill"><span class="status-dot"></span>Live</div>
+    <div class="pill" id="clock">--:--:--</div>
+    <div class="pill">Prochain scrape : <strong id="nextUpdate">--</strong></div>
+    <button class="btn" onclick="loadStats(true)">&#x27F3; Refresh</button>
+    <button class="btn" id="notifBtn" onclick="toggleNotifications()">&#x1F514; Alertes</button>
+    <button class="btn" id="themeBtn" onclick="toggleTheme()">&#x263C; Thème</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">📊 Vue d'ensemble</button>
+  <button class="tab" onclick="switchTab('history')">📈 Historique</button>
+  <button class="tab" onclick="switchTab('milestones')">🏆 Objectifs</button>
+  <button class="tab" onclick="switchTab('export')">📤 Export</button>
+</div>
+
+<!-- ═══ TAB OVERVIEW ═══ -->
+<div class="tab-content active" id="tab-overview">
+
+  <div class="cards">
+    <article class="card glass" data-key="uploads">
+      <div class="stat-label"><span>Uploads</span><span class="icon">🎧</span></div>
+      <div class="stat-value" id="uploads">0</div>
+      <div class="delta" id="delta-uploads"></div>
+      <div class="card-trend" id="trend-uploads">—</div>
+    </article>
+    <article class="card glass" data-key="downloads">
+      <div class="stat-label"><span>Downloads</span><span class="icon">⚡</span></div>
+      <div class="stat-value" id="downloads">0</div>
+      <div class="delta" id="delta-downloads"></div>
+      <div class="card-trend" id="trend-downloads">—</div>
+    </article>
+    <article class="card glass" data-key="favourites_in">
+      <div class="stat-label"><span>Favourites</span><span class="icon">💜</span></div>
+      <div class="stat-value" id="favourites_in">0</div>
+      <div class="delta" id="delta-favourites_in"></div>
+      <div class="card-trend" id="trend-favourites_in">—</div>
+    </article>
+    <article class="card glass" data-key="comments_in">
+      <div class="stat-label"><span>Comments</span><span class="icon">💬</span></div>
+      <div class="stat-value" id="comments_in">0</div>
+      <div class="delta" id="delta-comments_in"></div>
+      <div class="card-trend" id="trend-comments_in">—</div>
+    </article>
+  </div>
+
+  <div class="layout">
+    <div class="left-col">
+
+      <div class="panel glass">
+        <div class="panel-header">
+          <h2>📈 Évolution en session</h2>
+          <div class="panel-controls">
+            <button class="btn active" id="chart-dl" onclick="switchChart('downloads')">Downloads</button>
+            <button class="btn" id="chart-fav" onclick="switchChart('favourites_in')">Favourites</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel-header"><h2>📊 Statistiques rapides</h2></div>
+        <div class="mini-stats">
+          <div class="mini-stat glass">
+            <div class="mini-stat-label">Moy. DL / jour</div>
+            <div class="mini-stat-value" id="avgDay">—</div>
+          </div>
+          <div class="mini-stat glass">
+            <div class="mini-stat-label">Record +DL session</div>
+            <div class="mini-stat-value" id="recordDelta">—</div>
+          </div>
+          <div class="mini-stat glass">
+            <div class="mini-stat-label">Snapshots total</div>
+            <div class="mini-stat-value" id="totalSnaps">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="right-col">
+
+      <div class="panel glass">
+        <div class="panel-header"><h2>⚡ Activité récente</h2></div>
+        <div class="log" id="activityLog">
+          <div class="log-item">En attente des premières données...</div>
+        </div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel-header">
+          <h2>📋 Récap dernières sauvegardes</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Downloads</th><th>Favourites</th><th>Δ DL</th>
+              </tr>
+            </thead>
+            <tbody id="recapBody">
+              <tr><td colspan="4" style="color:var(--muted);text-align:center">Chargement...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB HISTORY ═══ -->
+<div class="tab-content" id="tab-history">
+
+  <div class="panel glass">
+    <div class="panel-header">
+      <h2>📈 Courbe historique complète</h2>
+    </div>
+    <div class="chart-wrap" style="height:280px"><canvas id="historyChart"></canvas></div>
+  </div>
+
+  <div class="panel glass">
+    <div class="panel-header">
+      <h2>📋 Tableau historique complet</h2>
+      <button class="btn" onclick="clearHistory()" style="color:var(--danger);border-color:var(--danger)">🗑 Effacer</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Date</th><th>Downloads</th><th>Favourites</th><th>Δ DL</th><th>Δ Fav</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="6" style="color:var(--muted);text-align:center">Aucun historique</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB MILESTONES ═══ -->
+<div class="tab-content" id="tab-milestones">
+  <div class="layout">
+    <div class="left-col">
+      <div class="panel glass">
+        <div class="panel-header"><h2>⚡ Objectifs Downloads</h2></div>
+        <div class="milestones" id="milestonesDL"></div>
+      </div>
+    </div>
+    <div class="right-col">
+      <div class="panel glass">
+        <div class="panel-header"><h2>💜 Objectifs Favourites</h2></div>
+        <div class="milestones" id="milestonesFAV"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB EXPORT ═══ -->
+<div class="tab-content" id="tab-export">
+  <div class="panel glass">
+    <div class="panel-header"><h2>📤 Exporter vos données</h2></div>
+    <div class="export-grid">
+      <div class="export-card glass" onclick="exportCSV()">
+        <div class="export-icon">📊</div>
+        <div class="export-label">CSV</div>
+        <div class="export-sub">Compatible Excel / Google Sheets</div>
+      </div>
+      <div class="export-card glass" onclick="exportJSON()">
+        <div class="export-icon">🗂</div>
+        <div class="export-label">JSON</div>
+        <div class="export-sub">Historique complet brut</div>
+      </div>
+      <div class="export-card glass" onclick="exportMarkdown()">
+        <div class="export-icon">📝</div>
+        <div class="export-label">Markdown</div>
+        <div class="export-sub">Pour README GitHub</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel glass">
+    <div class="panel-header"><h2>📋 Aperçu Markdown</h2></div>
+    <pre id="mdPreview" style="font-size:12px;color:var(--muted);overflow-x:auto;white-space:pre-wrap">Chargement...</pre>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div><span class="status-dot"></span>Auto-refresh UI : 60s · Scrape GitHub Actions : toutes les 12h</div>
+  <div style="display:flex;gap:16px;align-items:center">
+    <span id="lastUpdate" style="color:var(--muted)">—</span>
+    <a href="https://www.looperman.com" target="_blank" style="color:var(--accent2);text-decoration:none">looperman.com ↗</a>
+  </div>
+</footer>
+
+</main>
+
+<script>
+/* ═══ CONFIG ═══ */
+const KEYS         = ["uploads","downloads","favourites_in","comments_in"];
+const REFRESH_MS   = 60_000;
+const MILESTONES_DL  = [1000,5000,10000,25000,50000,100000,200000,500000];
+const MILESTONES_FAV = [50,100,250,500,1000,2500,5000];
+
+/* ═══ STATE ═══ */
+let previousStats = JSON.parse(localStorage.getItem("previousStats") || "{}");
+let dlHistory     = JSON.parse(localStorage.getItem("dlHistory")     || "[]");
+let favHistory    = JSON.parse(localStorage.getItem("favHistory")    || "[]");
+let fullHistory   = JSON.parse(localStorage.getItem("fullHistory")   || "[]");
+let recordDelta   = Number(localStorage.getItem("recordDelta")       || 0);
+let activeChart   = "downloads";
+let notifEnabled  = localStorage.getItem("notifEnabled") === "true";
+let lightMode     = localStorage.getItem("lightMode")    === "true";
+if (lightMode) document.body.classList.add("light-mode");
+
+/* ═══ PARTICLES ═══ */
+(function(){
+  const c = document.getElementById("particles");
+  const ctx = c.getContext("2d");
+  let pts = [];
+  function resize(){ c.width = innerWidth; c.height = innerHeight; }
+  function init(){
+    pts = Array.from({length:80},()=>({
+      x:Math.random()*c.width, y:Math.random()*c.height,
+      vx:(Math.random()-.5)*.3, vy:(Math.random()-.5)*.3,
+      r:Math.random()*1.5+.5,
+      a:Math.random()*.5+.1
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>c.width)  p.vx*=-1;
+      if(p.y<0||p.y>c.height) p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(139,92,246,${p.a})`;
+      ctx.fill();
+    });
+    pts.forEach((a,i)=>{
+      for(let j=i+1;j<pts.length;j++){
+        const b=pts[j];
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<120){
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(139,92,246,${.12*(1-d/120)})`;
+          ctx.lineWidth=.5; ctx.stroke();
+        }
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); init(); draw();
+  window.addEventListener("resize",()=>{ resize(); init(); });
+})();
+
+/* ═══ CLOCK ═══ */
+(function clock(){
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("fr-FR");
+  setTimeout(clock, 1000);
+})();
+
+/* ═══ HELPERS ═══ */
+const fmtN = n => Number(n).toLocaleString("fr-FR");
+
+function animateNumber(el, from, to){
+  if(from===to){ el.textContent=fmtN(to); return; }
+  const dur=900, start=performance.now();
+  function step(now){
+    const p=Math.min(1,(now-start)/dur);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=fmtN(Math.round(from+ease*(to-from)));
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function triggerPulse(key){
+  const card=document.querySelector(`.card[data-key="${key}"]`);
+  if(!card) return;
+  card.classList.remove("pulse");
+  void card.offsetWidth;
+  card.classList.add("pulse");
+  card.addEventListener("animationend",()=>card.classList.remove("pulse"),{once:true});
+}
+
+function updateDelta(key, diff){
+  const el = document.getElementById(`delta-${key}`);
+  if(!el) return;
+  el.textContent = diff > 0 ? `+${fmtN(diff)} depuis dernier refresh` : "";
+  el.classList.toggle("show", diff!==0);
+  setTimeout(()=>el.classList.remove("show"), 6000);
+}
+
+function updateTrend(key, diff){
+  const el = document.getElementById(`trend-${key}`);
+  if(!el) return;
+  if(diff>0){ el.textContent=`▲ +${fmtN(diff)}`; el.className="card-trend up"; }
+  else if(diff<0){ el.textContent=`▼ ${fmtN(diff)}`; el.className="card-trend down"; }
+  else { el.textContent="— Stable"; el.className="card-trend"; }
+}
+
+function addLog(html){
+  const log = document.getElementById("activityLog");
+  const item = document.createElement("div");
+  item.className="log-item";
+  item.innerHTML=html;
+  log.prepend(item);
+  while(log.children.length>30) log.removeChild(log.lastChild);
+}
+
+function showToast(msg, duration=3500){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), duration);
+}
+
+function updateNextRefreshInfo(updatedAt){
+  if(!updatedAt) return;
+  const last = new Date(updatedAt.replace(" ","T"));
+  if(isNaN(last)) return;
+  const next = new Date(last.getTime() + 12*3600*1000);
+  const diff = next - Date.now();
+  if(diff<=0){ document.getElementById("nextUpdate").textContent="Bientôt"; return; }
+  const h=Math.floor(diff/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  document.getElementById("nextUpdate").textContent=`dans ${h}h${m.toString().padStart(2,"0")}`;
+}
+
+/* ═══ THEME ═══ */
+function toggleTheme(){
+  lightMode=!lightMode;
+  document.body.classList.toggle("light-mode", lightMode);
+  localStorage.setItem("lightMode", lightMode);
+  document.getElementById("themeBtn").textContent= lightMode ? "🌙 Thème" : "☀ Thème";
+}
+
+/* ═══ NOTIFICATIONS ═══ */
+function toggleNotifications(){
+  notifEnabled=!notifEnabled;
+  localStorage.setItem("notifEnabled", notifEnabled);
+  document.getElementById("notifBtn").classList.toggle("active", notifEnabled);
+  if(notifEnabled && Notification.permission==="default") Notification.requestPermission();
+  showToast(notifEnabled ? "🔔 Alertes activées" : "🔕 Alertes désactivées");
+}
+
+function sendNotif(title, body){
+  if(!notifEnabled) return;
+  if(Notification.permission==="granted") new Notification(title,{body});
+}
+
+/* ═══ TABS ═══ */
+function switchTab(id){
+  document.querySelectorAll(".tab-content").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(el=>el.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  const idx=["overview","history","milestones","export"].indexOf(id);
+  document.querySelectorAll(".tab")[idx]?.classList.add("active");
+  if(id==="history")   renderHistoryTable();
+  if(id==="export")    renderMarkdown();
+}
+
+/* ═══ CHARTS ═══ */
+const chartOpts={
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:"rgba(255,255,255,.6)",font:{size:12}}}},
+  scales:{
+    x:{ticks:{color:"rgba(255,255,255,.5)",maxTicksLimit:8},grid:{color:"rgba(255,255,255,.07)"}},
+    y:{ticks:{color:"rgba(255,255,255,.5)"},grid:{color:"rgba(255,255,255,.07)"}}
+  }
+};
+
+const mainChart = new Chart(document.getElementById("mainChart").getContext("2d"),{
+  type:"line",
+  data:{labels:[],datasets:[{label:"Downloads",data:[],borderColor:"#22d3ee",backgroundColor:"rgba(34,211,238,.1)",fill:true,tension:.4,pointRadius:3}]},
+  options:{...chartOpts}
+});
+
+const historyChart = new Chart(document.getElementById("historyChart").getContext("2d"),{
+  type:"line",
+  data:{labels:[],datasets:[
+    {label:"Downloads",data:[],borderColor:"#22d3ee",backgroundColor:"rgba(34,211,238,.08)",fill:true,tension:.4,pointRadius:2,yAxisID:"y"},
+    {label:"Favourites",data:[],borderColor:"#a78bfa",backgroundColor:"rgba(167,139,250,.08)",fill:true,tension:.4,pointRadius:2,yAxisID:"y1"}
+  ]},
+  options:{
+    ...chartOpts,
+    scales:{
+      x:{ticks:{color:"rgba(255,255,255,.5)",maxTicksLimit:10},grid:{color:"rgba(255,255,255,.07)"}},
+      y:{type:"linear",position:"left",ticks:{color:"#22d3ee"},grid:{color:"rgba(255,255,255,.07)"}},
+      y1:{type:"linear",position:"right",ticks:{color:"#a78bfa"},grid:{drawOnChartArea:false}}
+    }
+  }
+});
+
+function switchChart(type){
+  activeChart=type;
+  document.getElementById("chart-dl").classList.toggle("active",type==="downloads");
+  document.getElementById("chart-fav").classList.toggle("active",type==="favourites_in");
+  updateMainChart();
+}
+
+function updateMainChart(){
+  const hist=activeChart==="downloads"?dlHistory:favHistory;
+  mainChart.data.labels=hist.map(h=>h.time);
+  mainChart.data.datasets[0].data=hist.map(h=>h.value);
+  mainChart.data.datasets[0].label=activeChart==="downloads"?"Downloads":"Favourites";
+  mainChart.data.datasets[0].borderColor=activeChart==="downloads"?"#22d3ee":"#a78bfa";
+  mainChart.data.datasets[0].backgroundColor=activeChart==="downloads"?"rgba(34,211,238,.1)":"rgba(167,139,250,.1)";
+  mainChart.update();
+}
+
+function updateHistoryChart(){
+  historyChart.data.labels=fullHistory.map(h=>h.time);
+  historyChart.data.datasets[0].data=fullHistory.map(h=>h.downloads);
+  historyChart.data.datasets[1].data=fullHistory.map(h=>h.favourites_in);
+  historyChart.update();
+}
+
+/* ═══ RECAP TABLE ═══ */
+function updateRecapTable(){
+  const tbody=document.getElementById("recapBody");
+  const rows=[...fullHistory].slice(-8).reverse();
+  if(!rows.length){ tbody.innerHTML=`<tr><td colspan="4" style="color:var(--muted);text-align:center">Aucune donnée</td></tr>`; return; }
+  tbody.innerHTML=rows.map((r,i)=>{
+    const prev=rows[i+1];
+    const delta=prev?r.downloads-prev.downloads:0;
+    const badge=delta>0?`<span class="badge badge-up">+${fmtN(delta)}</span>`:delta<0?`<span class="badge badge-down">${fmtN(delta)}</span>`:`<span class="badge badge-neutral">—</span>`;
+    return `<tr><td>${r.time}</td><td>${fmtN(r.downloads)}</td><td>${fmtN(r.favourites_in)}</td><td>${badge}</td></tr>`;
+  }).join("");
+}
+
+/* ═══ HISTORY TABLE ═══ */
+function renderHistoryTable(){
+  const tbody=document.getElementById("historyBody");
+  const rows=[...fullHistory].reverse();
+  if(!rows.length){ tbody.innerHTML=`<tr><td colspan="6" style="color:var(--muted);text-align:center">Aucun historique</td></tr>`; return; }
+  tbody.innerHTML=rows.map((r,i)=>{
+    const prev=rows[i+1];
+    const dDL=prev?r.downloads-prev.downloads:0;
+    const dFV=prev?r.favourites_in-prev.favourites_in:0;
+    const bdDL=dDL>0?"badge-up":dDL<0?"badge-down":"badge-neutral";
+    const bdFV=dFV>0?"badge-up":dFV<0?"badge-down":"badge-neutral";
+    return `<tr>
+      <td style="color:var(--muted)">${rows.length-i}</td>
+      <td>${r.time}</td>
+      <td>${fmtN(r.downloads)}</td>
+      <td>${fmtN(r.favourites_in)}</td>
+      <td><span class="badge ${bdDL}">${dDL>0?"+":""}${fmtN(dDL)}</span></td>
+      <td><span class="badge ${bdFV}">${dFV>0?"+":""}${fmtN(dFV)}</span></td>
+    </tr>`;
+  }).join("");
+}
+
+function clearHistory(){
+  if(!confirm("Effacer tout l'historique local ?")) return;
+  dlHistory=[]; favHistory=[]; fullHistory=[]; recordDelta=0;
+  ["dlHistory","favHistory","fullHistory","recordDelta"].forEach(k=>localStorage.removeItem(k));
+  updateMainChart(); updateHistoryChart(); updateRecapTable(); renderHistoryTable();
+  showToast("🗑 Historique effacé");
+}
+
+/* ═══ MILESTONES ═══ */
+function renderMilestones(dl,fav){
+  function build(id,targets,cur){
+    document.getElementById(id).innerHTML=targets.map(t=>{
+      const done=cur>=t;
+      const pct=Math.min(100,Math.round((cur/t)*100));
+      return `<div class="milestone ${done?"done":""}">
+        <span class="milestone-icon">${done?"🏆":"🎯"}</span>
+        <div class="milestone-info">
+          <div class="milestone-title">${fmtN(t)}</div>
+          <div class="milestone-sub">${done?"Atteint !":"Encore "+fmtN(t-cur)}</div>
+        </div>
+        <div class="milestone-progress-wrap">
+          <div class="milestone-progress-bar"><div class="milestone-progress-fill" style="width:${pct}%"></div></div>
+          <div class="milestone-pct">${pct}%</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+  build("milestonesDL",  MILESTONES_DL,  dl);
+  build("milestonesFAV", MILESTONES_FAV, fav);
+}
+
+/* ═══ MINI STATS ═══ */
+function updateMiniStats(){
+  document.getElementById("totalSnaps").textContent=fullHistory.length;
+  document.getElementById("recordDelta").textContent=fmtN(recordDelta);
+  if(fullHistory.length>=2){
+    const oldest=fullHistory[0], newest=fullHistory[fullHistory.length-1];
+    const days=Math.max(1,(new Date(newest.rawTime)-new Date(oldest.rawTime))/86400000);
+    const avg=Math.round((newest.downloads-oldest.downloads)/days);
+    document.getElementById("avgDay").textContent=avg>0?`+${fmtN(avg)}`:"—";
+  }
+}
+
+/* ═══ EXPORT ═══ */
+function download(filename, content, type){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=filename; a.click();
+  showToast(`✅ ${filename} téléchargé !`);
+}
+
+function exportCSV(){
+  const head="Date,Downloads,Favourites,Uploads,Comments,Δ Downloads,Δ Favourites\n";
+  const rows=fullHistory.map((r,i)=>{
+    const prev=fullHistory[i-1];
+    const dDL=prev?r.downloads-prev.downloads:0;
+    const dFV=prev?r.favourites_in-prev.favourites_in:0;
+    return `${r.time},${r.downloads},${r.favourites_in},${r.uploads||0},${r.comments_in||0},${dDL},${dFV}`;
+  });
+  download(`looperman_stats_${new Date().toISOString().slice(0,10)}.csv`, head+rows.join("\n"), "text/csv");
+}
+
+function exportJSON(){
+  download(`looperman_stats_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(fullHistory,null,2), "application/json");
+}
+
+function renderMarkdown(){
+  const last=fullHistory[fullHistory.length-1];
+  if(!last){ document.getElementById("mdPreview").textContent="Aucune donnée"; return; }
+  const md=`## 📊 Looperman Stats — ${last.time}
+
+| Stat | Valeur |
+|------|--------|
+| 🎧 Uploads | ${fmtN(last.uploads)} |
+| ⚡ Downloads | ${fmtN(last.downloads)} |
+| 💜 Favourites | ${fmtN(last.favourites_in)} |
+| 💬 Comments | ${fmtN(last.comments_in)} |
+
+> Mis à jour automatiquement toutes les 12h via GitHub Actions.`;
+  document.getElementById("mdPreview").textContent=md;
+}
+
+function exportMarkdown(){
+  const last=fullHistory[fullHistory.length-1];
+  if(!last){ showToast("⚠️ Aucune donnée à exporter"); return; }
+  const md=`## 📊 Looperman Stats — ${last.time}\n\n| Stat | Valeur |\n|------|--------|\n| 🎧 Uploads | ${fmtN(last.uploads)} |\n| ⚡ Downloads | ${fmtN(last.downloads)} |\n| 💜 Favourites | ${fmtN(last.favourites_in)} |\n| 💬 Comments | ${fmtN(last.comments_in)} |\n\n> Mis à jour automatiquement toutes les 12h via GitHub Actions.`;
+  download(`looperman_stats_${new Date().toISOString().slice(0,10)}.md`, md, "text/markdown");
+}
+
+/* ═══ LOAD STATS ═══ */
+async function loadStats(forced=false){
+  try{
+    const res=await fetch(`stats.json?cache=${Date.now()}`,{cache:"no-store"});
+    const data=await res.json();
+    const stats=data.loop_stats||{};
+
+    KEYS.forEach(key=>{
+      const el=document.getElementById(key);
+      const newVal=Number(stats[key]||0);
+      const oldVal=Number(previousStats[key]??newVal);
+      animateNumber(el, oldVal, newVal);
+      const diff=newVal-oldVal;
+      if(diff>0 && previousStats[key]!==undefined){
+        triggerPulse(key);
+        updateDelta(key,diff);
+        addLog(`<strong>${key.replace("_"," ")}</strong> +${fmtN(diff)} · ${new Date().toLocaleTimeString("fr-FR")}`);
+        if(key==="downloads"){
+          sendNotif("📈 Nouveaux downloads !",`+${fmtN(diff)} downloads sur Looperman`);
+          if(diff>recordDelta){ recordDelta=diff; localStorage.setItem("recordDelta",recordDelta); }
+        }
+      }
+      updateTrend(key, previousStats[key]!==undefined ? newVal-oldVal : 0);
+    });
+
+    const timeLabel=new Date().toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    dlHistory.push({time:timeLabel,value:Number(stats.downloads||0)});
+    favHistory.push({time:timeLabel,value:Number(stats.favourites_in||0)});
+    if(dlHistory.length>50)  dlHistory.shift();
+    if(favHistory.length>50) favHistory.shift();
+    fullHistory.push({
+      time:timeLabel, rawTime:new Date().toISOString(),
+      downloads:Number(stats.downloads||0), favourites_in:Number(stats.favourites_in||0),
+      uploads:Number(stats.uploads||0), comments_in:Number(stats.comments_in||0)
+    });
+    if(fullHistory.length>200) fullHistory.shift();
+
+    localStorage.setItem("dlHistory",   JSON.stringify(dlHistory));
+    localStorage.setItem("favHistory",  JSON.stringify(favHistory));
+    localStorage.setItem("fullHistory", JSON.stringify(fullHistory));
+
+    previousStats={};
+    KEYS.forEach(k=>previousStats[k]=Number(stats[k]||0));
+    localStorage.setItem("previousStats",JSON.stringify(previousStats));
+
+    updateMainChart(); updateHistoryChart(); updateRecapTable(); updateMiniStats();
+    renderMilestones(Number(stats.downloads||0), Number(stats.favourites_in||0));
+    updateNextRefreshInfo(data.updated_at);
+    document.getElementById("lastUpdate").textContent="Dernière donnée : "+(data.updated_at_display||data.updated_at||"—");
+
+    if(forced) addLog(`<strong>Refresh manuel</strong> · ${new Date().toLocaleTimeString("fr-FR")}`);
+
+    // Lit aussi l'historique embarqué dans le JSON si l'historique local est vide
+    if(fullHistory.length<=1 && data.history && data.history.length>1){
+      data.history.forEach(h=>{
+        const lbl=h.time.slice(0,16).replace("T"," ");
+        fullHistory.push({time:lbl,rawTime:h.time,downloads:h.downloads,favourites_in:h.favourites_in,uploads:h.uploads||0,comments_in:h.comments_in||0});
+      });
+      localStorage.setItem("fullHistory",JSON.stringify(fullHistory));
+      updateHistoryChart(); updateRecapTable(); updateMiniStats();
+    }
+
+  }catch(e){
+    addLog(`<strong>Erreur :</strong> impossible de lire stats.json`);
+  }
+}
+
+/* ═══ INIT ═══ */
+document.getElementById("notifBtn").classList.toggle("active",notifEnabled);
+document.getElementById("themeBtn").textContent=lightMode?"🌙 Thème":"☀ Thème";
+renderMilestones(0,0);
+setInterval(()=>loadStats(), REFRESH_MS);
+loadStats(true);
+</script>
+</body>
+</html>
