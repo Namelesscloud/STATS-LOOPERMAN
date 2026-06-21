@@ -1,34 +1,21 @@
 {
     "source": "https://www.looperman.com/users/profile/4055719",
-    "updated_at": "2026-06-21 13:04:01",
-    "updated_at_display": "21/06/2026 a 13:04:01",
+    "updated_at": "2026-06-21 15:44:44",
+    "updated_at_display": "21/06/2026 a 15:44:44",
     "refresh_hours": 12,
     "loop_stats": {
         "uploads": 231,
-        "downloads": 155322,
-        "favourites_in": 10378,
+        "downloads": 155413,
+        "favourites_in": 10398,
         "comments_in": 228
     },
     "delta": {
         "uploads": 0,
-        "downloads": 77,
-        "favourites_in": 12,
-        "comments_in": 2
+        "downloads": 91,
+        "favourites_in": 20,
+        "comments_in": 0
     },
     "history": [
-        {
-            "time": "2026-06-08 21:42:29",
-            "uploads": 219,
-            "downloads": 147928,
-            "favourites_in": 9328,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 71,
-                "favourites_in": 4,
-                "comments_in": 0
-            }
-        },
         {
             "time": "2026-06-08 23:06:48",
             "uploads": 219,
@@ -1314,6 +1301,19 @@
                 "downloads": 77,
                 "favourites_in": 12,
                 "comments_in": 2
+            }
+        },
+        {
+            "time": "2026-06-21 15:44:44",
+            "uploads": 231,
+            "downloads": 155413,
+            "favourites_in": 10398,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 91,
+                "favourites_in": 20,
+                "comments_in": 0
             }
         }
     ]
