@@ -1,411 +1,21 @@
 {
     "source": "https://www.looperman.com/users/profile/4055719",
-    "updated_at": "2026-06-20 20:09:54",
-    "updated_at_display": "20/06/2026 a 20:09:54",
+    "updated_at": "2026-06-24 13:10:20",
+    "updated_at_display": "24/06/2026 a 13:10:20",
     "refresh_hours": 12,
     "loop_stats": {
         "uploads": 231,
-        "downloads": 154616,
-        "favourites_in": 10274,
-        "comments_in": 225
+        "downloads": 156630,
+        "favourites_in": 10568,
+        "comments_in": 230
     },
     "delta": {
-        "uploads": 2,
-        "downloads": 95,
-        "favourites_in": 10,
-        "comments_in": 0
+        "uploads": 0,
+        "downloads": 31,
+        "favourites_in": 2,
+        "comments_in": 1
     },
     "history": [
-        {
-            "time": "2026-06-08 02:59:46",
-            "uploads": 219,
-            "downloads": 147528,
-            "favourites_in": 9296,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 48,
-                "favourites_in": 5,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 08:11:59",
-            "uploads": 219,
-            "downloads": 147609,
-            "favourites_in": 9297,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 81,
-                "favourites_in": 1,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 12:56:12",
-            "uploads": 219,
-            "downloads": 147676,
-            "favourites_in": 9310,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 67,
-                "favourites_in": 13,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 16:44:12",
-            "uploads": 219,
-            "downloads": 147779,
-            "favourites_in": 9314,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 103,
-                "favourites_in": 4,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 19:14:15",
-            "uploads": 219,
-            "downloads": 147857,
-            "favourites_in": 9324,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 78,
-                "favourites_in": 10,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 21:42:29",
-            "uploads": 219,
-            "downloads": 147928,
-            "favourites_in": 9328,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 71,
-                "favourites_in": 4,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-08 23:06:48",
-            "uploads": 219,
-            "downloads": 147951,
-            "favourites_in": 9331,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 23,
-                "favourites_in": 3,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 01:58:15",
-            "uploads": 219,
-            "downloads": 147989,
-            "favourites_in": 9347,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 38,
-                "favourites_in": 16,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 06:07:38",
-            "uploads": 219,
-            "downloads": 148067,
-            "favourites_in": 9362,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 78,
-                "favourites_in": 15,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 10:26:51",
-            "uploads": 219,
-            "downloads": 148129,
-            "favourites_in": 9367,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 62,
-                "favourites_in": 5,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 13:36:36",
-            "uploads": 219,
-            "downloads": 148199,
-            "favourites_in": 9375,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 70,
-                "favourites_in": 8,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 16:24:42",
-            "uploads": 219,
-            "downloads": 148271,
-            "favourites_in": 9384,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 72,
-                "favourites_in": 9,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 19:06:15",
-            "uploads": 219,
-            "downloads": 148347,
-            "favourites_in": 9386,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 76,
-                "favourites_in": 2,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 21:29:06",
-            "uploads": 219,
-            "downloads": 148429,
-            "favourites_in": 9388,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 82,
-                "favourites_in": 2,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-09 23:09:09",
-            "uploads": 219,
-            "downloads": 148460,
-            "favourites_in": 9390,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 31,
-                "favourites_in": 2,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 02:11:14",
-            "uploads": 219,
-            "downloads": 148501,
-            "favourites_in": 9396,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 41,
-                "favourites_in": 6,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 06:57:10",
-            "uploads": 219,
-            "downloads": 148561,
-            "favourites_in": 9402,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 60,
-                "favourites_in": 6,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 10:52:37",
-            "uploads": 219,
-            "downloads": 148658,
-            "favourites_in": 9409,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 97,
-                "favourites_in": 7,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 14:16:05",
-            "uploads": 219,
-            "downloads": 148715,
-            "favourites_in": 9414,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 57,
-                "favourites_in": 5,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 17:50:45",
-            "uploads": 219,
-            "downloads": 148786,
-            "favourites_in": 9417,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 71,
-                "favourites_in": 3,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 20:09:07",
-            "uploads": 219,
-            "downloads": 148842,
-            "favourites_in": 9422,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 56,
-                "favourites_in": 5,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-10 22:46:22",
-            "uploads": 219,
-            "downloads": 148886,
-            "favourites_in": 9426,
-            "comments_in": 214,
-            "delta": {
-                "uploads": 0,
-                "downloads": 44,
-                "favourites_in": 4,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 00:07:33",
-            "uploads": 219,
-            "downloads": 148915,
-            "favourites_in": 9431,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 29,
-                "favourites_in": 5,
-                "comments_in": 1
-            }
-        },
-        {
-            "time": "2026-06-11 05:19:42",
-            "uploads": 219,
-            "downloads": 148976,
-            "favourites_in": 9433,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 61,
-                "favourites_in": 2,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 10:03:03",
-            "uploads": 219,
-            "downloads": 149026,
-            "favourites_in": 9440,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 50,
-                "favourites_in": 7,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 14:28:38",
-            "uploads": 219,
-            "downloads": 149100,
-            "favourites_in": 9451,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 74,
-                "favourites_in": 11,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 18:01:10",
-            "uploads": 219,
-            "downloads": 149161,
-            "favourites_in": 9463,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 61,
-                "favourites_in": 12,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 21:10:57",
-            "uploads": 219,
-            "downloads": 149212,
-            "favourites_in": 9464,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 51,
-                "favourites_in": 1,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-11 23:13:06",
-            "uploads": 219,
-            "downloads": 149248,
-            "favourites_in": 9467,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 36,
-                "favourites_in": 3,
-                "comments_in": 0
-            }
-        },
-        {
-            "time": "2026-06-12 02:29:19",
-            "uploads": 219,
-            "downloads": 149297,
-            "favourites_in": 9474,
-            "comments_in": 215,
-            "delta": {
-                "uploads": 0,
-                "downloads": 49,
-                "favourites_in": 7,
-                "comments_in": 0
-            }
-        },
         {
             "time": "2026-06-12 07:11:05",
             "uploads": 219,
@@ -1314,6 +924,396 @@
                 "downloads": 95,
                 "favourites_in": 10,
                 "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-20 21:58:26",
+            "uploads": 231,
+            "downloads": 154749,
+            "favourites_in": 10286,
+            "comments_in": 226,
+            "delta": {
+                "uploads": 0,
+                "downloads": 133,
+                "favourites_in": 12,
+                "comments_in": 1
+            }
+        },
+        {
+            "time": "2026-06-20 23:06:16",
+            "uploads": 231,
+            "downloads": 154827,
+            "favourites_in": 10300,
+            "comments_in": 226,
+            "delta": {
+                "uploads": 0,
+                "downloads": 78,
+                "favourites_in": 14,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 02:36:26",
+            "uploads": 231,
+            "downloads": 154985,
+            "favourites_in": 10332,
+            "comments_in": 226,
+            "delta": {
+                "uploads": 0,
+                "downloads": 158,
+                "favourites_in": 32,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 10:58:24",
+            "uploads": 231,
+            "downloads": 155245,
+            "favourites_in": 10366,
+            "comments_in": 226,
+            "delta": {
+                "uploads": 0,
+                "downloads": 260,
+                "favourites_in": 34,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 13:04:01",
+            "uploads": 231,
+            "downloads": 155322,
+            "favourites_in": 10378,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 77,
+                "favourites_in": 12,
+                "comments_in": 2
+            }
+        },
+        {
+            "time": "2026-06-21 15:44:44",
+            "uploads": 231,
+            "downloads": 155413,
+            "favourites_in": 10398,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 91,
+                "favourites_in": 20,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 17:17:01",
+            "uploads": 231,
+            "downloads": 155462,
+            "favourites_in": 10400,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 49,
+                "favourites_in": 2,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 19:12:50",
+            "uploads": 231,
+            "downloads": 155507,
+            "favourites_in": 10406,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 45,
+                "favourites_in": 6,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 21:03:15",
+            "uploads": 231,
+            "downloads": 155553,
+            "favourites_in": 10408,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 46,
+                "favourites_in": 2,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-21 22:59:08",
+            "uploads": 231,
+            "downloads": 155608,
+            "favourites_in": 10420,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 55,
+                "favourites_in": 12,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 00:11:46",
+            "uploads": 231,
+            "downloads": 155623,
+            "favourites_in": 10422,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 15,
+                "favourites_in": 2,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 06:19:45",
+            "uploads": 231,
+            "downloads": 155708,
+            "favourites_in": 10434,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 85,
+                "favourites_in": 12,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 12:41:58",
+            "uploads": 231,
+            "downloads": 155807,
+            "favourites_in": 10442,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 99,
+                "favourites_in": 8,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 17:24:33",
+            "uploads": 231,
+            "downloads": 155893,
+            "favourites_in": 10464,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 86,
+                "favourites_in": 22,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 20:31:53",
+            "uploads": 231,
+            "downloads": 155978,
+            "favourites_in": 10473,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 85,
+                "favourites_in": 9,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 22:40:40",
+            "uploads": 231,
+            "downloads": 156027,
+            "favourites_in": 10476,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 49,
+                "favourites_in": 3,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-22 23:59:07",
+            "uploads": 231,
+            "downloads": 156044,
+            "favourites_in": 10476,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 17,
+                "favourites_in": 0,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 03:34:11",
+            "uploads": 231,
+            "downloads": 156090,
+            "favourites_in": 10492,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 46,
+                "favourites_in": 16,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 07:37:35",
+            "uploads": 231,
+            "downloads": 156151,
+            "favourites_in": 10495,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 61,
+                "favourites_in": 3,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 10:52:41",
+            "uploads": 231,
+            "downloads": 156194,
+            "favourites_in": 10502,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 43,
+                "favourites_in": 7,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 13:34:48",
+            "uploads": 231,
+            "downloads": 156243,
+            "favourites_in": 10517,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 49,
+                "favourites_in": 15,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 16:19:15",
+            "uploads": 231,
+            "downloads": 156315,
+            "favourites_in": 10527,
+            "comments_in": 228,
+            "delta": {
+                "uploads": 0,
+                "downloads": 72,
+                "favourites_in": 10,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 19:01:25",
+            "uploads": 231,
+            "downloads": 156383,
+            "favourites_in": 10537,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 68,
+                "favourites_in": 10,
+                "comments_in": 1
+            }
+        },
+        {
+            "time": "2026-06-23 21:22:32",
+            "uploads": 231,
+            "downloads": 156428,
+            "favourites_in": 10540,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 45,
+                "favourites_in": 3,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 22:58:21",
+            "uploads": 231,
+            "downloads": 156463,
+            "favourites_in": 10545,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 35,
+                "favourites_in": 5,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-23 23:54:35",
+            "uploads": 231,
+            "downloads": 156474,
+            "favourites_in": 10546,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 11,
+                "favourites_in": 1,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-24 02:08:10",
+            "uploads": 231,
+            "downloads": 156516,
+            "favourites_in": 10551,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 42,
+                "favourites_in": 5,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-24 06:35:01",
+            "uploads": 231,
+            "downloads": 156558,
+            "favourites_in": 10558,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 42,
+                "favourites_in": 7,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-24 10:12:48",
+            "uploads": 231,
+            "downloads": 156599,
+            "favourites_in": 10566,
+            "comments_in": 229,
+            "delta": {
+                "uploads": 0,
+                "downloads": 41,
+                "favourites_in": 8,
+                "comments_in": 0
+            }
+        },
+        {
+            "time": "2026-06-24 13:10:20",
+            "uploads": 231,
+            "downloads": 156630,
+            "favourites_in": 10568,
+            "comments_in": 230,
+            "delta": {
+                "uploads": 0,
+                "downloads": 31,
+                "favourites_in": 2,
+                "comments_in": 1
             }
         }
     ]
