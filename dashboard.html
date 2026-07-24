@@ -1,539 +1,732 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<title>Looperman Live Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-<style>
-:root {
-    --bg: #08060d;
-    --surface: rgba(255,255,255,0.045);
-    --border: rgba(168,124,255,0.16);
-    --border-hover: rgba(168,124,255,0.55);
-    --text: #f2eefb;
-    --muted: rgba(220,210,240,0.5);
-    --violet: #8b5cf6;
-    --violet-soft: #a78bfa;
-    --violet-deep: #4c1d95;
-    --success: #34d399;
-}
+    <meta charset="UTF-8" />
+    <title>Looperman Live Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-* { box-sizing: border-box; }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    overflow: hidden;
-    font-family: Inter, sans-serif;
-    color: var(--text);
-    background:
-        radial-gradient(ellipse 60% 40% at 20% 0%, rgba(139,92,246,0.16), transparent),
-        radial-gradient(ellipse 50% 40% at 85% 100%, rgba(76,29,149,0.22), transparent),
-        var(--bg);
-}
+    <style>
+        :root {
+            --bg: #050816;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-strong: rgba(255, 255, 255, 0.14);
+            --border: rgba(255, 255, 255, 0.18);
+            --text: #ffffff;
+            --muted: rgba(255, 255, 255, 0.65);
+            --accent: #8b5cf6;
+            --accent-2: #22d3ee;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
 
-/* Grille perspective 3D en fond */
-.grid3d {
-    position: fixed;
-    inset: -10% -20%;
-    z-index: 0;
-    background-image:
-        linear-gradient(rgba(139,92,246,0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(139,92,246,0.07) 1px, transparent 1px);
-    background-size: 56px 56px;
-    transform: perspective(600px) rotateX(58deg) translateY(20%);
-    mask-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent 70%);
-    animation: gridMove 14s linear infinite;
-    pointer-events: none;
-}
-@keyframes gridMove {
-    from { background-position: 0 0; }
-    to   { background-position: 0 56px; }
-}
+        * {
+            box-sizing: border-box;
+        }
 
-/* Orbe 3D flottant */
-.orb {
-    position: fixed;
-    z-index: 0;
-    width: 420px; height: 420px;
-    right: -120px; top: -120px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 32% 30%, rgba(167,139,250,0.35), rgba(76,29,149,0.18) 45%, transparent 70%);
-    filter: blur(2px);
-    animation: orbFloat 9s ease-in-out infinite alternate;
-    pointer-events: none;
-}
-@keyframes orbFloat {
-    from { transform: translateY(0) scale(1); }
-    to   { transform: translateY(40px) scale(1.06); }
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 10%, rgba(139, 92, 246, 0.35), transparent 35%),
+                radial-gradient(circle at 85% 15%, rgba(34, 211, 238, 0.22), transparent 30%),
+                radial-gradient(circle at 50% 90%, rgba(236, 72, 153, 0.18), transparent 35%),
+                var(--bg);
+        }
 
-canvas#particles { position: fixed; inset: 0; z-index: 1; }
+        .noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.055;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+            z-index: 2;
+        }
 
-.app {
-    position: relative;
-    z-index: 2;
-    height: 100vh;
-    padding: 32px 38px;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: 22px;
-}
+        canvas#particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
 
-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+        .app {
+            position: relative;
+            z-index: 3;
+            height: 100vh;
+            padding: 34px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 22px;
+        }
 
-.eyebrow {
-    font-family: 'Space Grotesk';
-    font-size: 12px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--violet-soft);
-    font-weight: 700;
-    margin-bottom: 8px;
-}
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
 
-h1 {
-    margin: 0;
-    font-size: clamp(30px, 4.5vw, 62px);
-    letter-spacing: -0.05em;
-    line-height: 0.95;
-    font-weight: 900;
-}
-.gradient-text {
-    background: linear-gradient(120deg, #c4b5fd, #8b5cf6 45%, #6d28d9);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-.top-panel { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .eyebrow {
+            font-size: 13px;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            font-weight: 700;
+        }
 
-.pill {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    backdrop-filter: blur(16px);
-    border-radius: 999px;
-    padding: 9px 16px;
-    font-size: 13px;
-    color: var(--muted);
-}
-.pill strong { color: var(--violet-soft); }
+        h1 {
+            margin: 0;
+            font-size: clamp(32px, 5vw, 72px);
+            letter-spacing: -0.06em;
+            line-height: 0.95;
+        }
 
-button {
-    border: 1px solid var(--border-hover);
-    background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(76,29,149,0.35));
-    color: var(--text);
-    border-radius: 999px;
-    padding: 9px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.25s;
-}
-button:hover { box-shadow: 0 0 24px rgba(139,92,246,0.45); transform: translateY(-1px); }
+        .gradient-text {
+            background: linear-gradient(135deg, #fff, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
 
-.status-dot {
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--success);
-    box-shadow: 0 0 14px var(--success);
-    margin-right: 8px;
-}
+        .top-panel {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
 
-.layout {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 20px;
-    min-height: 0;
-}
+        .pill, button {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            backdrop-filter: blur(18px);
+            border-radius: 999px;
+            padding: 11px 16px;
+            font-size: 14px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.22);
+        }
 
-.cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 18px;
-    min-height: 0;
-}
+        button {
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
 
-.card, .panel {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(139,92,246,0.03) 60%, rgba(0,0,0,0.1));
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
-}
+        button:hover {
+            transform: translateY(-2px);
+            background: var(--glass-strong);
+            box-shadow: 0 0 35px rgba(34, 211, 238, 0.22);
+        }
 
-.card {
-    padding: 24px;
-    transform-style: preserve-3d;
-    transition: transform 0.15s ease-out, border-color 0.25s, box-shadow 0.3s;
-    will-change: transform;
-}
-.card:hover {
-    border-color: var(--border-hover);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 40px rgba(139,92,246,0.15);
-}
+        .layout {
+            display: grid;
+            grid-template-columns: 1.4fr 0.9fr;
+            gap: 22px;
+            min-height: 0;
+        }
 
-/* Reflet qui suit la souris */
-.card::before {
-    content: "";
-    position: absolute;
-    width: 300px; height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(167,139,250,0.14), transparent 65%);
-    left: var(--mx, 50%); top: var(--my, 50%);
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.25s;
-    pointer-events: none;
-}
-.card:hover::before { opacity: 1; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+            gap: 18px;
+        }
 
-.card-content {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transform: translateZ(30px); /* profondeur 3D du contenu */
-}
+        .card, .panel {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,255,255,0.115), rgba(255,255,255,0.055));
+            backdrop-filter: blur(24px);
+            border-radius: 30px;
+            box-shadow: 0 26px 80px rgba(0, 0, 0, 0.32);
+        }
 
-.stat-label {
-    display: flex;
-    justify-content: space-between;
-    color: var(--muted);
-    font-family: 'Space Grotesk';
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-}
-.icon { font-size: 22px; filter: drop-shadow(0 0 14px rgba(139,92,246,0.6)); }
+        .card {
+            min-height: 210px;
+            padding: 26px;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease, border-color 0.25s ease;
+        }
 
-.stat-value {
-    font-size: clamp(34px, 4.5vw, 60px);
-    font-weight: 900;
-    letter-spacing: -0.06em;
-    line-height: 1;
-    text-shadow: 0 0 40px rgba(139,92,246,0.3);
-}
+        .card:hover {
+            border-color: rgba(34, 211, 238, 0.55);
+        }
 
-.delta {
-    min-height: 22px;
-    color: var(--success);
-    font-weight: 800;
-    font-size: 13px;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: 0.35s;
-}
-.delta.show { opacity: 1; transform: translateY(0); }
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: -60%;
+            background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 32%);
+            opacity: 0;
+            transform: translate(var(--mx, 0), var(--my, 0));
+            transition: opacity 0.25s ease;
+        }
 
-.pulse { animation: pulseGlow 1.1s ease; }
-@keyframes pulseGlow {
-    35% { box-shadow: 0 0 55px rgba(139,92,246,0.6), inset 0 0 30px rgba(139,92,246,0.12); }
-}
+        .card:hover::before {
+            opacity: 1;
+        }
 
-.side { display: grid; grid-template-rows: 1.2fr 1fr; gap: 18px; min-height: 0; }
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-.panel { padding: 22px; min-height: 0; display: flex; flex-direction: column; }
-.panel h2 {
-    margin: 0 0 14px;
-    font-family: 'Space Grotesk';
-    font-size: 15px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--violet-soft);
-}
-.chart-wrap { flex: 1; min-height: 0; position: relative; }
+        .stat-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
 
-.log { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: auto; padding-right: 4px; }
-.log::-webkit-scrollbar { width: 4px; }
-.log::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4); border-radius: 4px; }
-.log-item {
-    border: 1px solid rgba(139,92,246,0.12);
-    background: rgba(139,92,246,0.05);
-    border-radius: 12px;
-    padding: 10px 13px;
-    color: var(--muted);
-    font-size: 12.5px;
-}
-.log-item strong { color: var(--violet-soft); }
+        .icon {
+            font-size: 24px;
+            filter: drop-shadow(0 0 18px rgba(255,255,255,0.25));
+        }
 
-footer { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+        .stat-value {
+            font-size: clamp(38px, 5vw, 70px);
+            font-weight: 900;
+            letter-spacing: -0.07em;
+            line-height: 1;
+        }
 
-@media (max-width: 1000px) {
-    body { overflow: auto; }
-    .app { height: auto; }
-    .layout { grid-template-columns: 1fr; }
-}
-</style>
+        .delta {
+            min-height: 24px;
+            color: var(--success);
+            font-weight: 800;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.35s ease;
+        }
+
+        .delta.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pulse {
+            animation: pulseGlow 1.1s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+            }
+            35% {
+                box-shadow: 0 0 55px rgba(34, 211, 238, 0.55), inset 0 0 35px rgba(34, 211, 238, 0.12);
+                transform: scale(1.015);
+            }
+            100% {
+                box-shadow: 0 26px 80px rgba(0, 0, 0, 0.32);
+                transform: scale(1);
+            }
+        }
+
+        .side {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 18px;
+            min-height: 0;
+        }
+
+        .panel {
+            padding: 22px;
+            min-height: 0;
+        }
+
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+        }
+
+        .chart-wrap {
+            height: calc(100% - 38px);
+            min-height: 210px;
+        }
+
+        .log {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 260px;
+            overflow: auto;
+            padding-right: 5px;
+        }
+
+        .log-item {
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.055);
+            border-radius: 16px;
+            padding: 11px 13px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .log-item strong {
+            color: white;
+        }
+
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 18px var(--success);
+            margin-right: 8px;
+        }
+
+        .mini-bars {
+            display: flex;
+            align-items: end;
+            gap: 4px;
+            height: 22px;
+        }
+
+        .mini-bars span {
+            width: 4px;
+            border-radius: 999px;
+            background: linear-gradient(var(--accent-2), var(--accent));
+            animation: bar 1s infinite ease-in-out alternate;
+        }
+
+        .mini-bars span:nth-child(2) { animation-delay: .15s; }
+        .mini-bars span:nth-child(3) { animation-delay: .3s; }
+        .mini-bars span:nth-child(4) { animation-delay: .45s; }
+
+        @keyframes bar {
+            from { height: 6px; opacity: .45; }
+            to { height: 22px; opacity: 1; }
+        }
+
+        @media (max-width: 1050px) {
+            .layout {
+                grid-template-columns: 1fr;
+                overflow: auto;
+            }
+
+            body {
+                overflow: auto;
+            }
+
+            .app {
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .app {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="grid3d"></div>
-<div class="orb"></div>
-<canvas id="particles"></canvas>
+    <canvas id="particles"></canvas>
+    <div class="noise"></div>
 
-<main class="app">
-    <header>
-        <div>
-            <div class="eyebrow">Looperman Live Stats</div>
-            <h1><span class="gradient-text">Real-Time</span><br>Creator Dashboard</h1>
-        </div>
-        <div class="top-panel">
-            <div class="pill"><span class="status-dot"></span>Scraping actif</div>
-            <div class="pill" id="clock">--:--:--</div>
-            <div class="pill">Prochain scrape : <strong id="countdown">120</strong>s</div>
-            <button onclick="loadStats(true)">Forcer refresh</button>
-        </div>
-    </header>
-
-    <section class="layout">
-        <div class="cards">
-            <article class="card" data-key="uploads"><div class="card-content">
-                <div class="stat-label"><span>Uploads</span><span class="icon">🎧</span></div>
-                <div><div class="stat-value" id="uploads">0</div><div class="delta" id="delta-uploads"></div></div>
-            </div></article>
-            <article class="card" data-key="downloads"><div class="card-content">
-                <div class="stat-label"><span>Downloads</span><span class="icon">⚡</span></div>
-                <div><div class="stat-value" id="downloads">0</div><div class="delta" id="delta-downloads"></div></div>
-            </div></article>
-            <article class="card" data-key="favourites_in"><div class="card-content">
-                <div class="stat-label"><span>Favourites In</span><span class="icon">💜</span></div>
-                <div><div class="stat-value" id="favourites_in">0</div><div class="delta" id="delta-favourites_in"></div></div>
-            </div></article>
-            <article class="card" data-key="comments_in"><div class="card-content">
-                <div class="stat-label"><span>Comments In</span><span class="icon">💬</span></div>
-                <div><div class="stat-value" id="comments_in">0</div><div class="delta" id="delta-comments_in"></div></div>
-            </div></article>
-        </div>
-
-        <aside class="side">
-            <div class="panel">
-                <h2>Évolution des downloads</h2>
-                <div class="chart-wrap"><canvas id="downloadChart"></canvas></div>
+    <main class="app">
+        <header>
+            <div class="brand">
+                <div class="eyebrow">Looperman Live Stats</div>
+                <h1><span class="gradient-text">Real-Time</span><br>Creator Dashboard</h1>
             </div>
-            <div class="panel">
-                <h2>Dernières activités</h2>
-                <div class="log" id="activityLog">
-                    <div class="log-item">En attente des premières données...</div>
+
+            <div class="top-panel">
+                <div class="pill">
+                    <span class="status-dot"></span>
+                    Connecté au fichier local
                 </div>
+                <div class="pill" id="clock">--:--:--</div>
+                <div class="pill">Refresh local : <strong id="countdown">5</strong>s</div>
+                <button onclick="loadStats(true)">Forcer refresh</button>
             </div>
-        </aside>
-    </section>
+        </header>
 
-    <footer>
-        <div id="lastUpdate">Dernière donnée : --</div>
-        <div>Looperman Tracker · violet edition</div>
-    </footer>
-</main>
+        <section class="layout">
+            <div class="cards">
+                <article class="card" data-key="uploads">
+                    <div class="card-content">
+                        <div class="stat-label">
+                            <span>Uploads</span>
+                            <span class="icon">🎧</span>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="uploads">0</div>
+                            <div class="delta" id="delta-uploads"></div>
+                        </div>
+                    </div>
+                </article>
 
-<script>
-const REFRESH_SECONDS = 120; // 2 minutes
-const keys = ["uploads", "downloads", "favourites_in", "comments_in"];
-let previousStats = JSON.parse(localStorage.getItem("previousStats") || "{}");
-let history = JSON.parse(localStorage.getItem("downloadHistory") || "[]");
-let countdown = REFRESH_SECONDS;
+                <article class="card" data-key="downloads">
+                    <div class="card-content">
+                        <div class="stat-label">
+                            <span>Downloads</span>
+                            <span class="icon">⚡</span>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="downloads">0</div>
+                            <div class="delta" id="delta-downloads"></div>
+                        </div>
+                    </div>
+                </article>
 
-const formatter = new Intl.NumberFormat("en-US");
-const formatNumber = n => formatter.format(Number(n || 0));
+                <article class="card" data-key="favourites_in">
+                    <div class="card-content">
+                        <div class="stat-label">
+                            <span>Favourites In</span>
+                            <span class="icon">💜</span>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="favourites_in">0</div>
+                            <div class="delta" id="delta-favourites_in"></div>
+                        </div>
+                    </div>
+                </article>
 
-function animateNumber(el, from, to, duration = 900) {
-    const start = performance.now();
-    function update(now) {
-        const p = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = formatNumber(Math.round(from + (to - from) * eased));
-        if (p < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-}
+                <article class="card" data-key="comments_in">
+                    <div class="card-content">
+                        <div class="stat-label">
+                            <span>Comments In</span>
+                            <span class="icon">💬</span>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="comments_in">0</div>
+                            <div class="delta" id="delta-comments_in"></div>
+                        </div>
+                    </div>
+                </article>
+            </div>
 
-function addLog(msg) {
-    const log = document.getElementById("activityLog");
-    if (log.children.length === 1 && log.children[0].textContent.includes("attente")) log.innerHTML = "";
-    const item = document.createElement("div");
-    item.className = "log-item";
-    item.innerHTML = msg;
-    log.prepend(item);
-    while (log.children.length > 8) log.removeChild(log.lastChild);
-}
+            <aside class="side">
+                <div class="panel">
+                    <h2>Évolution des downloads</h2>
+                    <div class="chart-wrap">
+                        <canvas id="downloadChart"></canvas>
+                    </div>
+                </div>
 
-function triggerCardPulse(key) {
-    const card = document.querySelector(`.card[data-key="${key}"]`);
-    if (!card) return;
-    card.classList.remove("pulse");
-    void card.offsetWidth;
-    card.classList.add("pulse");
-}
+                <div class="panel">
+                    <h2>Dernières activités détectées</h2>
+                    <div class="log" id="activityLog">
+                        <div class="log-item">En attente des premières données...</div>
+                    </div>
+                </div>
+            </aside>
+        </section>
 
-function updateDelta(key, diff) {
-    const delta = document.getElementById(`delta-${key}`);
-    if (!delta || diff <= 0) return;
-    delta.textContent = `+${formatNumber(diff)} depuis le dernier scrape`;
-    delta.classList.add("show");
-    setTimeout(() => delta.classList.remove("show"), 6000);
-}
+        <footer>
+            <div id="lastUpdate">Dernière donnée : --</div>
+            <div class="mini-bars">
+                <span></span><span></span><span></span><span></span>
+            </div>
+        </footer>
+    </main>
 
-async function loadStats(forced = false) {
-    try {
-        const response = await fetch(`/stats?cache=${Date.now()}`);
-        const data = await response.json();
-        const stats = data.loop_stats || {};   // <-- FIX : on lit loop_stats
+    <script>
+        const HTML_REFRESH_SECONDS = 5;
 
-        keys.forEach(key => {
-            const el = document.getElementById(key);
-            const newValue = Number(stats[key] || 0);
-            const oldValue = Number(previousStats[key] ?? newValue);
-            animateNumber(el, oldValue, newValue);
+        const keys = ["uploads", "downloads", "favourites_in", "comments_in"];
+        let previousStats = JSON.parse(localStorage.getItem("previousStats") || "{}");
+        let history = JSON.parse(localStorage.getItem("downloadHistory") || "[]");
+        let countdown = HTML_REFRESH_SECONDS;
 
-            const diff = newValue - oldValue;
-            if (diff > 0 && previousStats[key] !== undefined) {
-                triggerCardPulse(key);
-                updateDelta(key, diff);
-                addLog(`<strong>${key.replace(/_/g, " ")}</strong> +${formatNumber(diff)} à ${new Date().toLocaleTimeString("fr-FR")}`);
+        const formatter = new Intl.NumberFormat("en-US");
+
+        function formatNumber(num) {
+            return formatter.format(Number(num || 0));
+        }
+
+        function animateNumber(element, from, to, duration = 900) {
+            const start = performance.now();
+
+            function update(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = Math.round(from + (to - from) * eased);
+
+                element.textContent = formatNumber(value);
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function addLog(message) {
+            const log = document.getElementById("activityLog");
+
+            if (log.children.length === 1 && log.children[0].textContent.includes("En attente")) {
+                log.innerHTML = "";
+            }
+
+            const item = document.createElement("div");
+            item.className = "log-item";
+            item.innerHTML = message;
+
+            log.prepend(item);
+
+            while (log.children.length > 8) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function triggerCardPulse(key) {
+            const card = document.querySelector(`.card[data-key="${key}"]`);
+            if (!card) return;
+
+            card.classList.remove("pulse");
+            void card.offsetWidth;
+            card.classList.add("pulse");
+        }
+
+        function updateDelta(key, diff) {
+            const delta = document.getElementById(`delta-${key}`);
+            if (!delta) return;
+
+            if (diff > 0) {
+                delta.textContent = `+${formatNumber(diff)} depuis la dernière donnée`;
+                delta.classList.add("show");
+                setTimeout(() => delta.classList.remove("show"), 5000);
+            }
+        }
+
+        async function loadStats(forced = false) {
+            try {
+                const response = await fetch(`stats.json?cache=${Date.now()}`);
+                const data = await response.json();
+
+                keys.forEach(key => {
+                    const el = document.getElementById(key);
+                    const newValue = Number(data[key] || 0);
+                    const oldValue = Number(previousStats[key] ?? newValue);
+
+                    animateNumber(el, oldValue, newValue);
+
+                    const diff = newValue - oldValue;
+
+                    if (diff > 0 && previousStats[key] !== undefined) {
+                        triggerCardPulse(key);
+                        updateDelta(key, diff);
+
+                        addLog(`
+                            <strong>${key.replace("_", " ")}</strong>
+                            a augmenté de <strong>+${formatNumber(diff)}</strong>
+                            à ${new Date().toLocaleTimeString("fr-FR")}
+                        `);
+                    }
+                });
+
+                if (data.downloads !== undefined) {
+                    history.push({
+                        time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+                        value: Number(data.downloads)
+                    });
+
+                    if (history.length > 20) {
+                        history.shift();
+                    }
+
+                    localStorage.setItem("downloadHistory", JSON.stringify(history));
+                    updateChart();
+                }
+
+                previousStats = {};
+                keys.forEach(key => previousStats[key] = Number(data[key] || 0));
+                localStorage.setItem("previousStats", JSON.stringify(previousStats));
+
+                document.getElementById("lastUpdate").textContent =
+                    "Dernière donnée : " + (data.updated_at || new Date().toLocaleString("fr-FR"));
+
+                if (forced) {
+                    addLog(`<strong>Refresh manuel</strong> effectué à ${new Date().toLocaleTimeString("fr-FR")}`);
+                }
+
+            } catch (error) {
+                addLog(`<strong>Erreur :</strong> impossible de lire stats.json`);
+            }
+        }
+
+        const chartCtx = document.getElementById("downloadChart").getContext("2d");
+
+        const downloadChart = new Chart(chartCtx, {
+            type: "line",
+            data: {
+                labels: history.map(item => item.time),
+                datasets: [{
+                    label: "Downloads",
+                    data: history.map(item => item.value),
+                    borderColor: "#22d3ee",
+                    backgroundColor: "rgba(34, 211, 238, 0.12)",
+                    fill: true,
+                    tension: 0.45,
+                    pointRadius: 4,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "rgba(255,255,255,0.7)"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "rgba(255,255,255,0.55)" },
+                        grid: { color: "rgba(255,255,255,0.08)" }
+                    },
+                    y: {
+                        ticks: { color: "rgba(255,255,255,0.55)" },
+                        grid: { color: "rgba(255,255,255,0.08)" }
+                    }
+                }
             }
         });
 
-        if (stats.downloads !== undefined) {
-            const last = history[history.length - 1];
-            if (!last || last.value !== stats.downloads) {
-                history.push({
-                    time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
-                    value: Number(stats.downloads)
-                });
-                if (history.length > 20) history.shift();
-                localStorage.setItem("downloadHistory", JSON.stringify(history));
-            }
-            updateChart();
+        function updateChart() {
+            downloadChart.data.labels = history.map(item => item.time);
+            downloadChart.data.datasets[0].data = history.map(item => item.value);
+            downloadChart.update();
         }
 
-        previousStats = {};
-        keys.forEach(k => previousStats[k] = Number(stats[k] || 0));
-        localStorage.setItem("previousStats", JSON.stringify(previousStats));
+        setInterval(() => {
+            countdown--;
+            if (countdown <= 0) countdown = HTML_REFRESH_SECONDS;
+            document.getElementById("countdown").textContent = countdown;
+        }, 1000);
 
-        document.getElementById("lastUpdate").textContent =
-            "Dernière donnée : " + (data.updated_at_display || "--");
+        setInterval(() => {
+            countdown = HTML_REFRESH_SECONDS;
+            loadStats();
+        }, HTML_REFRESH_SECONDS * 1000);
 
-        if (forced) addLog(`<strong>Refresh manuel</strong> à ${new Date().toLocaleTimeString("fr-FR")}`);
-        countdown = REFRESH_SECONDS;
-    } catch (e) {
-        addLog(`<strong>Erreur :</strong> serveur injoignable`);
-    }
-}
+        setInterval(() => {
+            document.getElementById("clock").textContent =
+                new Date().toLocaleTimeString("fr-FR");
+        }, 1000);
 
-/* Chart violet */
-const chartCtx = document.getElementById("downloadChart").getContext("2d");
-const gradient = chartCtx.createLinearGradient(0, 0, 0, 300);
-gradient.addColorStop(0, "rgba(139,92,246,0.45)");
-gradient.addColorStop(1, "rgba(139,92,246,0)");
+        document.querySelectorAll(".card").forEach(card => {
+            card.addEventListener("mousemove", e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-const downloadChart = new Chart(chartCtx, {
-    type: "line",
-    data: { labels: [], datasets: [{
-        data: [],
-        borderColor: "#a78bfa",
-        backgroundColor: gradient,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointBackgroundColor: "#8b5cf6",
-        borderWidth: 2
-    }]},
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { ticks: { color: "rgba(220,210,240,0.45)", font: { size: 10 } }, grid: { color: "rgba(139,92,246,0.06)" } },
-            y: { ticks: { color: "rgba(220,210,240,0.45)", font: { size: 10 } }, grid: { color: "rgba(139,92,246,0.06)" } }
+                const rotateX = ((y / rect.height) - 0.5) * -8;
+                const rotateY = ((x / rect.width) - 0.5) * 8;
+
+                card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+                card.style.setProperty("--mx", `${x - rect.width / 2}px`);
+                card.style.setProperty("--my", `${y - rect.height / 2}px`);
+            });
+
+            card.addEventListener("mouseleave", () => {
+                card.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+            });
+        });
+
+        const canvas = document.getElementById("particles");
+        const ctx = canvas.getContext("2d");
+
+        let particles = [];
+
+        function resizeParticles() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            particles = Array.from({ length: 70 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2.2 + 0.4,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35,
+                a: Math.random() * 0.7 + 0.2
+            }));
         }
-    }
-});
 
-function updateChart() {
-    downloadChart.data.labels = history.map(i => i.time);
-    downloadChart.data.datasets[0].data = history.map(i => i.value);
-    downloadChart.update();
-}
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-/* Compte à rebours + horloge */
-setInterval(() => {
-    countdown--;
-    if (countdown <= 0) { countdown = REFRESH_SECONDS; loadStats(); }
-    document.getElementById("countdown").textContent = countdown;
-    document.getElementById("clock").textContent = new Date().toLocaleTimeString("fr-FR");
-}, 1000);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
 
-/* Tilt 3D des cartes */
-document.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("mousemove", e => {
-        const r = card.getBoundingClientRect();
-        const x = e.clientX - r.left, y = e.clientY - r.top;
-        const rx = ((y / r.height) - 0.5) * -10;
-        const ry = ((x / r.width) - 0.5) * 10;
-        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(8px)`;
-        card.style.setProperty("--mx", `${x}px`);
-        card.style.setProperty("--my", `${y}px`);
-    });
-    card.addEventListener("mouseleave", () => {
-        card.style.transform = "perspective(900px) rotateX(0) rotateY(0)";
-    });
-});
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-/* Particules violettes reliées */
-const pCanvas = document.getElementById("particles");
-const ctx = pCanvas.getContext("2d");
-let particles = [];
-
-function resizeParticles() {
-    pCanvas.width = innerWidth;
-    pCanvas.height = innerHeight;
-    particles = Array.from({ length: 45 }, () => ({
-        x: Math.random() * innerWidth,
-        y: Math.random() * innerHeight,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35
-    }));
-}
-
-function drawParticles() {
-    ctx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-    particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > pCanvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > pCanvas.height) p.vy *= -1;
-        ctx.fillStyle = "rgba(167,139,250,0.5)";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-    });
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const d = Math.hypot(dx, dy);
-            if (d < 130) {
-                ctx.strokeStyle = `rgba(139,92,246,${(1 - d / 130) * 0.14})`;
                 ctx.beginPath();
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.stroke();
-            }
-        }
-    }
-    requestAnimationFrame(drawParticles);
-}
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${p.a})`;
+                ctx.fill();
+            });
 
-window.addEventListener("resize", resizeParticles);
-resizeParticles();
-drawParticles();
-loadStats(true); // scrape dès l'ouverture
-</script>
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+
+                    if (d < 120) {
+                        ctx.strokeStyle = `rgba(34,211,238,${(1 - d / 120) * 0.16})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(drawParticles);
+        }
+
+        window.addEventListener("resize", resizeParticles);
+
+        resizeParticles();
+        drawParticles();
+        loadStats(true);
+    </script>
 </body>
 </html>
