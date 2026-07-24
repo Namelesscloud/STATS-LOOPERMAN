@@ -1,19 +1,67 @@
 {
     "source": "https://www.looperman.com/users/profile/4055719",
-    "updated_at": "2026-05-17 22:09:09",
-    "updated_at_display": "17/05/2026 à 22:09:09",
-    "refresh_seconds": 120,
+    "output": "stats.json",
+    "updated_at": "2026-07-24 15:53:15",
+    "updated_at_display": "24/07/2026 à 15:53:15",
+    "refresh_seconds": 300,
+    "content_hash": "32a72366b6cb48707c906a019ef5bb564514aed8e16d0b7a9a1557f4029d60f2",
+    "hash_changed": true,
     "loop_stats": {
-        "uploads": 199,
-        "downloads": 134649,
-        "favourites_in": 7430,
-        "comments_in": 201
+        "uploads": 250,
+        "downloads": 172595,
+        "favourites_in": 13152,
+        "comments_in": 268
     },
+    "uploads": 250,
+    "downloads": 172595,
+    "favourites_in": 13152,
+    "comments_in": 268,
     "delta": {
         "uploads": 0,
         "downloads": 0,
         "favourites_in": 0,
         "comments_in": 0
     },
-    "history": []
+    "history": [
+        {
+            "source": "https://www.looperman.com/users/profile/4055719",
+            "output": "stats.json",
+            "updated_at": "2026-07-24 15:52:48",
+            "updated_at_display": "24/07/2026 à 15:52:48",
+            "content_hash": "e3a3b73c9e14ca76a70a17c8c22ee5bcf7511e56c98fc5b9eeee2e3f08777da1",
+            "hash_changed": false,
+            "loop_stats": {
+                "uploads": 250,
+                "downloads": 172595,
+                "favourites_in": 13152,
+                "comments_in": 268
+            },
+            "delta": {
+                "uploads": 51,
+                "downloads": 37946,
+                "favourites_in": 5722,
+                "comments_in": 67
+            }
+        },
+        {
+            "source": "https://www.looperman.com/users/profile/4055719",
+            "output": "stats.json",
+            "updated_at": "2026-07-24 15:53:15",
+            "updated_at_display": "24/07/2026 à 15:53:15",
+            "content_hash": "32a72366b6cb48707c906a019ef5bb564514aed8e16d0b7a9a1557f4029d60f2",
+            "hash_changed": true,
+            "loop_stats": {
+                "uploads": 250,
+                "downloads": 172595,
+                "favourites_in": 13152,
+                "comments_in": 268
+            },
+            "delta": {
+                "uploads": 0,
+                "downloads": 0,
+                "favourites_in": 0,
+                "comments_in": 0
+            }
+        }
+    ]
 }
