@@ -261,6 +261,50 @@
             min-height: 210px;
         }
 
+        .history-table-wrap {
+            overflow: auto;
+            max-height: 360px;
+        }
+
+        table.history-table,
+        table#historyTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        table#historyTable thead th {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        table#historyTable tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        table#historyTable tbody td {
+            padding: 10px 12px;
+        }
+
+        table#historyTable tbody tr:nth-child(odd) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        table#historyTable tbody td.hash-true {
+            color: #f59e0b;
+            font-weight: 700;
+        }
+
+        table#historyTable tbody td.hash-false {
+            color: #22c55e;
+        }
+
         .log {
             display: flex;
             flex-direction: column;
@@ -373,6 +417,7 @@
                     <span class="status-dot"></span>
                     Connecté au fichier local
                 </div>
+                <div class="pill" id="hashStatus">Hash: inconnu</div>
                 <div class="pill" id="clock">--:--:--</div>
                 <div class="pill">Refresh local : <strong id="countdown">5</strong>s</div>
                 <button onclick="loadStats(true)">Forcer refresh</button>
@@ -448,11 +493,33 @@
                         <div class="log-item">En attente des premières données...</div>
                     </div>
                 </div>
+
+                <div class="panel">
+                    <h2>Historique détaillé</h2>
+                    <div class="history-table-wrap">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Heure</th>
+                                    <th>Uploads</th>
+                                    <th>Downloads</th>
+                                    <th>Favs</th>
+                                    <th>Comments</th>
+                                    <th>Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
             </aside>
         </section>
 
         <footer>
-            <div id="lastUpdate">Dernière donnée : --</div>
+            <div>
+                <div id="lastUpdate">Dernière donnée : --</div>
+                <div id="fileInfo">Source : -- · Output : stats.json</div>
+            </div>
             <div class="mini-bars">
                 <span></span><span></span><span></span><span></span>
             </div>
@@ -460,11 +527,11 @@
     </main>
 
     <script>
-        const HTML_REFRESH_SECONDS = 5;
+        const HTML_REFRESH_SECONDS = 1800;
 
         const keys = ["uploads", "downloads", "favourites_in", "comments_in"];
         let previousStats = JSON.parse(localStorage.getItem("previousStats") || "{}");
-        let history = JSON.parse(localStorage.getItem("downloadHistory") || "[]");
+        let history = [];
         let countdown = HTML_REFRESH_SECONDS;
 
         const formatter = new Intl.NumberFormat("en-US");
@@ -533,10 +600,30 @@
             try {
                 const response = await fetch(`stats.json?cache=${Date.now()}`);
                 const data = await response.json();
+                const stats = data.loop_stats || data;
+                const hashChanged = Boolean(data.hash_changed);
+                const source = data.source || "--";
+                const outputFile = data.output || "stats.json";
+                const historyData = Array.isArray(data.history) ? data.history : [];
+
+                document.getElementById("hashStatus").textContent = hashChanged
+                    ? "Hash : modification détectée"
+                    : "Hash : stable";
+                document.getElementById("fileInfo").textContent =
+                    `Source : ${source} · Output : ${outputFile}`;
+
+                history = historyData.map(item => ({
+                    time: item.updated_at_display || item.updated_at,
+                    value: Number(item.loop_stats?.downloads || 0)
+                }));
+
+                if (history.length) {
+                    updateChart();
+                }
 
                 keys.forEach(key => {
                     const el = document.getElementById(key);
-                    const newValue = Number(data[key] || 0);
+                    const newValue = Number(stats[key] || 0);
                     const oldValue = Number(previousStats[key] ?? newValue);
 
                     animateNumber(el, oldValue, newValue);
@@ -555,26 +642,16 @@
                     }
                 });
 
-                if (data.downloads !== undefined) {
-                    history.push({
-                        time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
-                        value: Number(data.downloads)
-                    });
-
-                    if (history.length > 20) {
-                        history.shift();
-                    }
-
-                    localStorage.setItem("downloadHistory", JSON.stringify(history));
-                    updateChart();
-                }
-
                 previousStats = {};
-                keys.forEach(key => previousStats[key] = Number(data[key] || 0));
+                keys.forEach(key => previousStats[key] = Number(stats[key] || 0));
                 localStorage.setItem("previousStats", JSON.stringify(previousStats));
 
                 document.getElementById("lastUpdate").textContent =
                     "Dernière donnée : " + (data.updated_at || new Date().toLocaleString("fr-FR"));
+
+                if (hashChanged) {
+                    addLog(`<strong>Hash changé</strong> détecté à ${new Date().toLocaleTimeString("fr-FR")}`);
+                }
 
                 if (forced) {
                     addLog(`<strong>Refresh manuel</strong> effectué à ${new Date().toLocaleTimeString("fr-FR")}`);
@@ -629,6 +706,28 @@
             downloadChart.data.labels = history.map(item => item.time);
             downloadChart.data.datasets[0].data = history.map(item => item.value);
             downloadChart.update();
+        }
+
+        function renderHistoryTable(historyData) {
+            const tbody = document.querySelector("#historyTable tbody");
+            tbody.innerHTML = "";
+
+            historyData.slice().reverse().forEach(item => {
+                const row = document.createElement("tr");
+                const hashClass = item.hash_changed ? "hash-true" : "hash-false";
+                const hashLabel = item.hash_changed ? "⚠" : "✔";
+
+                row.innerHTML = `
+                    <td>${item.updated_at_display || item.updated_at}</td>
+                    <td>${formatNumber(item.loop_stats?.uploads || 0)}</td>
+                    <td>${formatNumber(item.loop_stats?.downloads || 0)}</td>
+                    <td>${formatNumber(item.loop_stats?.favourites_in || 0)}</td>
+                    <td>${formatNumber(item.loop_stats?.comments_in || 0)}</td>
+                    <td class="${hashClass}">${hashLabel}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
         }
 
         setInterval(() => {
