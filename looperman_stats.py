@@ -1,155 +1,182 @@
-from flask import Flask, jsonify, send_from_directory
-from bs4 import BeautifulSoup
-from datetime import datetime
-from pathlib import Path
 import requests
+from bs4 import BeautifulSoup
 import json
 import time
+from datetime import datetime
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+
 URL = "https://www.looperman.com/users/profile/4055719"
-STATS_FILE = BASE_DIR / "stats.json"
-HISTORY_FILE = BASE_DIR / "history.json"
-CACHE_SECONDS = 120      # scrape max toutes les 2 minutes
-HISTORY_MAX_POINTS = 60  # nombre de points gardés pour le graphique
+OUTPUT_FILE = BASE_DIR / "stats.json"
 
-app = Flask(__name__)
-cache = {"data": None, "time": 0}
+# Actualisation du scraping
+# 30 = toutes les 30 secondes
+# Tu peux mettre 15 si tu veux plus rapide, mais évite trop bas.
+REFRESH_SECONDS = 300
 
-
-# ---------- Utilitaires ----------
 
 def clean_number(value):
     try:
-        return int(value.replace(",", "").replace(" ", "").strip())
-    except Exception:
+        return int(
+            value
+            .replace(",", "")
+            .replace(" ", "")
+            .strip()
+        )
+    except:
         return 0
 
 
 def extract_section(lines, section_name):
     if section_name not in lines:
         return {}
+
     start = lines.index(section_name)
     end = len(lines)
+
     for i in range(start + 1, len(lines)):
         if lines[i].endswith("Stats") and lines[i] != section_name:
             end = i
             break
+
     section_lines = lines[start + 1:end]
     stats = {}
+
     for i in range(len(section_lines) - 1):
-        value, label = section_lines[i], section_lines[i + 1]
-        if value.replace(",", "").replace(" ", "").isdigit():
-            key = label.lower().replace(" ", "_").replace("-", "_").replace("/", "_")
+        value = section_lines[i]
+        label = section_lines[i + 1]
+
+        number_candidate = value.replace(",", "").replace(" ", "")
+
+        if number_candidate.isdigit():
+            key = (
+                label.lower()
+                .replace(" ", "_")
+                .replace("-", "_")
+                .replace("/", "_")
+            )
+
             stats[key] = clean_number(value)
+
     return stats
 
 
-def read_json(path, default):
-    if path.exists():
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return default
+def read_previous_stats():
+    if not OUTPUT_FILE.exists():
+        return None
+
+    try:
+        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return None
 
 
-def write_json(path, data):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+def get_delta(new_value, old_value):
+    if old_value is None:
+        return 0
+
+    return new_value - old_value
 
 
-# ---------- Historique ----------
+def get_looperman_stats():
+    previous_data = read_previous_stats()
 
-def update_history(current_stats):
-    history = read_json(HISTORY_FILE, [])
+    response = requests.get(
+        URL,
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        },
+        timeout=30
+    )
 
-    point = {
-        "time": datetime.now().strftime("%H:%M"),
-        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "downloads": current_stats["downloads"],
-        "favourites_in": current_stats["favourites_in"],
-        "comments_in": current_stats["comments_in"],
-        "uploads": current_stats["uploads"],
-    }
-
-    # On n'ajoute pas de doublon si rien n'a bougé
-    if history and history[-1]["downloads"] == point["downloads"] \
-            and history[-1]["favourites_in"] == point["favourites_in"] \
-            and history[-1]["comments_in"] == point["comments_in"] \
-            and history[-1]["uploads"] == point["uploads"]:
-        return history
-
-    history.append(point)
-    history = history[-HISTORY_MAX_POINTS:]
-    write_json(HISTORY_FILE, history)
-    return history
-
-
-# ---------- Scraping ----------
-
-def scrape():
-    previous = read_json(STATS_FILE, None)
-    old = previous.get("loop_stats", {}) if previous else {}
-
-    response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
-    lines = [l.strip() for l in soup.get_text("\n").split("\n") if l.strip()]
+
+    lines = [
+        line.strip()
+        for line in soup.get_text("\n").split("\n")
+        if line.strip()
+    ]
+
     loop_stats = extract_section(lines, "Loop Stats")
 
-    current = {
-        "uploads": loop_stats.get("uploads", 0),
-        "downloads": loop_stats.get("downloads", 0),
-        "favourites_in": loop_stats.get("favourites_in", 0),
-        "comments_in": loop_stats.get("comments_in", 0),
-    }
+    uploads = loop_stats.get("uploads", 0)
+    downloads = loop_stats.get("downloads", 0)
+    favourites = loop_stats.get("favourites_in", 0)
+    comments = loop_stats.get("comments_in", 0)
 
-    history = update_history(current)
+    previous_loop_stats = {}
+
+    if previous_data:
+        previous_loop_stats = previous_data.get("loop_stats", {})
+
+    old_uploads = previous_loop_stats.get("uploads")
+    old_downloads = previous_loop_stats.get("downloads")
+    old_favourites = previous_loop_stats.get("favourites_in")
+    old_comments = previous_loop_stats.get("comments_in")
 
     data = {
         "source": URL,
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "updated_at_display": datetime.now().strftime("%d/%m/%Y à %H:%M:%S"),
-        "refresh_seconds": CACHE_SECONDS,
-        "loop_stats": current,
-        "delta": {k: current[k] - old.get(k, current[k]) for k in current},
-        "history": history,
+        "refresh_seconds": REFRESH_SECONDS,
+        "loop_stats": {
+            "uploads": uploads,
+            "downloads": downloads,
+            "favourites_in": favourites,
+            "comments_in": comments
+        },
+        "delta": {
+            "uploads": get_delta(uploads, old_uploads),
+            "downloads": get_delta(downloads, old_downloads),
+            "favourites_in": get_delta(favourites, old_favourites),
+            "comments_in": get_delta(comments, old_comments)
+        }
     }
 
-    write_json(STATS_FILE, data)
-    print(f"[{data['updated_at_display']}] Scrape OK -> {current}")
     return data
 
 
-# ---------- Routes ----------
+def save_stats(data):
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
-@app.route("/stats")
-def stats():
-    now = time.time()
-    if cache["data"] is None or (now - cache["time"]) > CACHE_SECONDS:
+    print("--------------------------------")
+    print("Stats mises à jour :", data["updated_at_display"])
+    print("Fichier écrit ici :", OUTPUT_FILE)
+    print("Uploads :", data["loop_stats"]["uploads"])
+    print("Downloads :", data["loop_stats"]["downloads"])
+    print("Favourites In :", data["loop_stats"]["favourites_in"])
+    print("Comments In :", data["loop_stats"]["comments_in"])
+
+    delta = data["delta"]
+
+    if any(value != 0 for value in delta.values()):
+        print("Changements détectés :", delta)
+    else:
+        print("Aucun changement détecté")
+
+
+def main():
+    print("Looperman Live Dashboard lancé.")
+    print("URL :", URL)
+    print("Actualisation toutes les", REFRESH_SECONDS, "secondes")
+    print("Dossier :", BASE_DIR)
+
+    while True:
         try:
-            cache["data"] = scrape()
-            cache["time"] = now
+            data = get_looperman_stats()
+            save_stats(data)
+
         except Exception as e:
-            print("Erreur scraping :", e)
-            if cache["data"] is None:
-                previous = read_json(STATS_FILE, None)
-                if previous:
-                    previous["history"] = read_json(HISTORY_FILE, [])
-                    cache["data"] = previous
-                else:
-                    return jsonify({"error": str(e)}), 500
-    return jsonify(cache["data"])
+            print("--------------------------------")
+            print("Erreur pendant la récupération :", e)
 
-
-@app.route("/")
-def index():
-    return send_from_directory(BASE_DIR, "index.html")
+        time.sleep(REFRESH_SECONDS)
 
 
 if __name__ == "__main__":
-    print("Dashboard : http://localhost:8000")
-    app.run(host="127.0.0.1", port=8000)
+    main()
